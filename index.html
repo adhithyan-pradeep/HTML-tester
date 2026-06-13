@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HTML Tester</title>
+    <style>
+        :root {
+            --bg-color: #1e1e1e;
+            --header-bg: #2d2d2d;
+            --text-color: #efefef;
+            --accent-color: #4caf50;
+            --border-color: #3f3f3f;
+            --editor-bg: #1a1a1a;
+        }
+
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            overflow: hidden;
+        }
+
+        /* Header Styles */
+        header {
+            height: 60px;
+            background-color: var(--header-bg);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            z-index: 10;
+            position: relative;
+        }
+
+        #run-btn {
+            padding: 10px 30px;
+            font-size: 16px;
+            font-weight: bold;
+            color: white;
+            background-color: var(--accent-color);
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.1s;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+        }
+
+        #run-btn:hover {
+            background-color: #45a049;
+        }
+
+        #run-btn:active {
+            transform: translateY(2px);
+            box-shadow: 0 2px 3px rgba(0,0,0,0.2);
+        }
+
+        /* Main Container */
+        main {
+            display: flex;
+            height: calc(100vh - 60px);
+            width: 100%;
+        }
+
+        /* Editor Section */
+        .editor-container {
+            width: 50%;
+            height: 100%;
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+        }
+
+        #code-editor {
+            flex-grow: 1;
+            background-color: var(--editor-bg);
+            color: #d4d4d4;
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            font-size: 14px;
+            padding: 15px;
+            border: none;
+            resize: none;
+            outline: none;
+            line-height: 1.5;
+        }
+
+        /* Preview Section */
+        .preview-container {
+            width: 50%;
+            height: 100%;
+            background-color: white;
+        }
+
+        #preview-window {
+            width: 100%;
+            height: 100%;
+            border: none;
+            background-color: white;
+        }
+
+        /* Custom Scrollbar for Editor */
+        #code-editor::-webkit-scrollbar {
+            width: 12px;
+        }
+        #code-editor::-webkit-scrollbar-track {
+            background: var(--editor-bg);
+        }
+        #code-editor::-webkit-scrollbar-thumb {
+            background: #333;
+            border-radius: 6px;
+        }
+        #code-editor::-webkit-scrollbar-thumb:hover {
+            background: #444;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <button id="run-btn">Run</button>
+    </header>
+
+    <main>
+        <section class="editor-container">
+            <textarea id="code-editor" spellcheck="false" placeholder="Write your HTML here..."></textarea>
+        </section>
+        <section class="preview-container">
+            <iframe id="preview-window"></iframe>
+        </section>
+    </main>
+
+    <script>
+        const editor = document.getElementById('code-editor');
+        const preview = document.getElementById('preview-window');
+        const runBtn = document.getElementById('run-btn');
+
+        // Default HTML template
+        const defaultHTML = `<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body {
+            font-family: sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f2f5;
+        }
+        h1 { color: #333; }
+        .card {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h1>Hello World! 🚀</h1>
+        <p>Welcome to your HTML Tester.</p>
+        <button onclick="alert('It works!')">Click Me</button>
+    </div>
+</body>
+</html>`;
+
+        // Set initial content
+        editor.value = defaultHTML;
+
+        function runCode() {
+            const code = editor.value;
+            // Using srcdoc is the cleanest way to inject HTML into an iframe
+            preview.srcdoc = code;
+        }
+
+        // Run on button click
+        runBtn.addEventListener('click', runCode);
+
+        // Optional: Run on Ctrl+Enter for power users
+        editor.addEventListener('keydown', (e) => {
+            if (e.ctrlKey && e.key === 'Enter') {
+                runCode();
+            }
+        });
+
+        // Run initially on load
+        window.onload = runCode;
+    </script>
+</body>
+</html>
