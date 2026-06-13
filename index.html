@@ -3,15 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HTML Tester</title>
+    <title>HTML Tester Pro</title>
     <style>
         :root {
             --bg-color: #1e1e1e;
             --header-bg: #2d2d2d;
+            --sidebar-bg: #252526;
             --text-color: #efefef;
             --accent-color: #4caf50;
             --border-color: #3f3f3f;
             --editor-bg: #1a1a1a;
+            --active-file-bg: #37373d;
+            --hover-color: #3e3e42;
         }
 
         body, html {
@@ -66,9 +69,89 @@
             width: 100%;
         }
 
+        /* Sidebar Styles */
+        .sidebar {
+            width: 260px;
+            background-color: var(--sidebar-bg);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            user-select: none;
+        }
+
+        .sidebar-header {
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+            font-weight: bold;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #aaa;
+        }
+
+        #new-file-btn {
+            background: none;
+            border: none;
+            color: var(--text-color);
+            font-size: 20px;
+            cursor: pointer;
+            padding: 0 5px;
+            transition: color 0.2s;
+        }
+
+        #new-file-btn:hover {
+            color: var(--accent-color);
+        }
+
+        .file-list {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding: 10px 0;
+        }
+
+        .file-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 15px;
+            cursor: pointer;
+            font-size: 14px;
+            color: #ccc;
+            transition: background-color 0.2s;
+            border-left: 3px solid transparent;
+        }
+
+        .file-item:hover {
+            background-color: var(--hover-color);
+        }
+
+        .file-item.active {
+            background-color: var(--active-file-bg);
+            color: white;
+            border-left-color: var(--accent-color);
+        }
+
+        .delete-file-btn {
+            opacity: 0;
+            background: none;
+            border: none;
+            color: #ff5f56;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: bold;
+            transition: opacity 0.2s;
+        }
+
+        .file-item:hover .delete-file-btn {
+            opacity: 1;
+        }
+
         /* Editor Section */
         .editor-container {
-            width: 50%;
+            flex-grow: 1;
             height: 100%;
             border-right: 1px solid var(--border-color);
             display: flex;
@@ -90,7 +173,7 @@
 
         /* Preview Section */
         .preview-container {
-            width: 50%;
+            width: 40%;
             height: 100%;
             background-color: white;
         }
@@ -125,8 +208,17 @@
     </header>
 
     <main>
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <span>Explorer</span>
+                <button id="new-file-btn" title="New File">+</button>
+            </div>
+            <div id="file-list" class="file-list">
+                <!-- Files will be populated here -->
+            </div>
+        </aside>
         <section class="editor-container">
-            <textarea id="code-editor" spellcheck="false" placeholder="Write your HTML here..."></textarea>
+            <textarea id="code-editor" spellcheck="false" placeholder="Write your code here..."></textarea>
         </section>
         <section class="preview-container">
             <iframe id="preview-window"></iframe>
@@ -137,61 +229,171 @@
         const editor = document.getElementById('code-editor');
         const preview = document.getElementById('preview-window');
         const runBtn = document.getElementById('run-btn');
+        const newFileBtn = document.getElementById('new-file-btn');
+        const fileListEl = document.getElementById('file-list');
 
-        // Default HTML template
-        const defaultHTML = `<!DOCTYPE html>
+        // VFS State
+        let files = {
+            'index.html': `<!DOCTYPE html>
 <html>
 <head>
-    <style>
-        body {
-            font-family: sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-            background-color: #f0f2f5;
-        }
-        h1 { color: #333; }
-        .card {
-            background: white;
-            padding: 2rem;
-            border-radius: 12px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-            text-align: center;
-        }
-    </style>
+    <title>My Project</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="card">
-        <h1>Hello World! 🚀</h1>
-        <p>Welcome to your HTML Tester.</p>
-        <button onclick="alert('It works!')">Click Me</button>
+        <h1>Multi-File Tester 🚀</h1>
+        <p>Welcome to the pro version.</p>
+        <button onclick="sayHello()">Click Me</button>
     </div>
+    <script src="script.js"><\/script>
 </body>
-</html>`;
+</html>`
+        };
 
-        // Set initial content
-        editor.value = defaultHTML;
+        let activeFile = 'index.html';
 
-        function runCode() {
-            const code = editor.value;
-            // Using srcdoc is the cleanest way to inject HTML into an iframe
-            preview.srcdoc = code;
+        // Default starter files
+        files['style.css'] = `body {
+    font-family: sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    background-color: #f0f2f5;
+}
+.card {
+    background: white;
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    text-align: center;
+}`;
+
+        files['script.js'] = `function sayHello() {
+    alert('Hello from script.js!');
+}`;
+
+        function updateFileList() {
+            fileListEl.innerHTML = '';
+            Object.keys(files).forEach(fileName => {
+                const div = document.createElement('div');
+                div.className = `file-item ${fileName === activeFile ? 'active' : ''}`;
+                div.innerHTML = `
+                    <span class="file-name">${fileName}</span>
+                    <button class="delete-file-btn" data-filename="${fileName}">✕</button>
+                `;
+                div.onclick = (e) => {
+                    // Prevent switching if delete button was clicked
+                    if (e.target.classList.contains('delete-file-btn')) return;
+                    switchFile(fileName);
+                };
+
+                // Handle single click on delete button specifically
+                div.querySelector('.delete-file-btn').onclick = (e) => {
+                    e.stopPropagation();
+                    deleteFile(fileName);
+                };
+
+                fileListEl.appendChild(div);
+            });
         }
 
-        // Run on button click
-        runBtn.addEventListener('click', runCode);
+        function switchFile(fileName) {
+            // Save current editor content to VFS
+            files[activeFile] = editor.value;
 
-        // Optional: Run on Ctrl+Enter for power users
+            activeFile = fileName;
+            editor.value = files[activeFile];
+            updateFileList();
+        }
+
+        function deleteFile(fileName) {
+            if (fileName === 'index.html') {
+                alert('Cannot delete the entry point (index.html)');
+                return;
+            }
+            if (confirm(\`Delete \${fileName}?\`)) {
+                delete files[fileName];
+                if (activeFile === fileName) {
+                    activeFile = 'index.html';
+                    editor.value = files[activeFile];
+                }
+                updateFileList();
+            }
+        }
+
+        function createNewFile() {
+            const fileName = prompt('Enter file name (e.g. style.css, app.js):');
+            if (!fileName) return;
+
+            if (files[fileName]) {
+                alert('File already exists!');
+                return;
+            }
+
+            files[fileName] = '';
+            switchFile(fileName);
+        }
+
+        function runCode() {
+            // Save current active file before running
+            files[activeFile] = editor.value;
+
+            const htmlBase = files['index.html'] || '<html><body></body></html>';
+
+            let finalHTML = htmlBase;
+
+            // Bundle CSS: Find all .css files and inject them as <style> tags
+            const cssContent = Object.keys(files)
+                .filter(name => name.endsWith('.css'))
+                .map(name => \`/* \${name} */\\n\${files[name]}\`)
+                .join('\\n\\n');
+
+            if (cssContent) {
+                const styleTag = \`<style>\${cssContent}</style>`;
+                if (finalHTML.includes('<head>')) {
+                    finalHTML = finalHTML.replace('<head>', \`<head>\${styleTag}`);
+                } else {
+                    finalHTML = styleTag + finalHTML;
+                }
+            }
+
+            // Bundle JS: Find all .js files and inject them as <script> tags
+            const jsContent = Object.keys(files)
+                .filter(name => name.endsWith('.js'))
+                .map(name => \`// \${name}\\n\${files[name]}\`)
+                .join('\\n\\n');
+
+            if (jsContent) {
+                const scriptTag = \`<script>\${jsContent}<\/script>`;
+                if (finalHTML.includes('</body>')) {
+                    finalHTML = finalHTML.replace('</body>', \`\${scriptTag}</body>`);
+                } else {
+                    finalHTML = finalHTML + scriptTag;
+                }
+            }
+
+            preview.srcdoc = finalHTML;
+        }
+
+        // Event Listeners
+        runBtn.addEventListener('click', runCode);
+        newFileBtn.addEventListener('click', createNewFile);
+
         editor.addEventListener('keydown', (e) => {
             if (e.ctrlKey && e.key === 'Enter') {
                 runCode();
             }
         });
 
-        // Run initially on load
-        window.onload = runCode;
+        // Init
+        window.onload = () => {
+            editor.value = files[activeFile];
+            updateFileList();
+            runCode();
+        };
     </script>
 </body>
 </html>
