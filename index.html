@@ -212,10 +212,10 @@
             <div class="sidebar-header">
                 <span>Explorer</span>
                 <button id="new-file-btn" title="New File">+</button>
-            </div>
+            </div
             <div id="file-list" class="file-list">
                 <!-- Files will be populated here -->
-            </div>
+            </div
         </aside>
         <section class="editor-container">
             <textarea id="code-editor" spellcheck="false" placeholder="Write your code here..."></textarea>
@@ -238,15 +238,13 @@
 <html>
 <head>
     <title>My Project</title>
-    <link rel="stylesheet" href="style.css">
 </head>
-<body>
+<body style="font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; background-color: #f0f2f5;">
     <div class="card">
-        <h1>Multi-File Tester 🚀</h1>
+        <h1 style="color: #333;">Multi-File Tester 🚀</h1>
         <p>Welcome to the pro version.</p>
         <button onclick="sayHello()">Click Me</button>
     </div>
-    <script src="script.js"><\/script>
 </body>
 </html>`
         };
@@ -285,12 +283,10 @@
                     <button class="delete-file-btn" data-filename="${fileName}">✕</button>
                 `;
                 div.onclick = (e) => {
-                    // Prevent switching if delete button was clicked
                     if (e.target.classList.contains('delete-file-btn')) return;
                     switchFile(fileName);
                 };
 
-                // Handle single click on delete button specifically
                 div.querySelector('.delete-file-btn').onclick = (e) => {
                     e.stopPropagation();
                     deleteFile(fileName);
@@ -301,9 +297,7 @@
         }
 
         function switchFile(fileName) {
-            // Save current editor content to VFS
             files[activeFile] = editor.value;
-
             activeFile = fileName;
             editor.value = files[activeFile];
             updateFileList();
@@ -314,7 +308,7 @@
                 alert('Cannot delete the entry point (index.html)');
                 return;
             }
-            if (confirm(\`Delete \${fileName}?\`)) {
+            if (confirm(`Delete ${fileName}?`)) {
                 delete files[fileName];
                 if (activeFile === fileName) {
                     activeFile = 'index.html';
@@ -327,49 +321,42 @@
         function createNewFile() {
             const fileName = prompt('Enter file name (e.g. style.css, app.js):');
             if (!fileName) return;
-
             if (files[fileName]) {
                 alert('File already exists!');
                 return;
             }
-
             files[fileName] = '';
             switchFile(fileName);
         }
 
         function runCode() {
-            // Save current active file before running
             files[activeFile] = editor.value;
-
             const htmlBase = files['index.html'] || '<html><body></body></html>';
-
             let finalHTML = htmlBase;
 
-            // Bundle CSS: Find all .css files and inject them as <style> tags
             const cssContent = Object.keys(files)
                 .filter(name => name.endsWith('.css'))
-                .map(name => \`/* \${name} */\\n\${files[name]}\`)
-                .join('\\n\\n');
+                .map(name => `/* ${name} */\n${files[name]}`)
+                .join('\n\n');
 
             if (cssContent) {
-                const styleTag = \`<style>\${cssContent}</style>`;
+                const styleTag = `<style>${cssContent}</style>`;
                 if (finalHTML.includes('<head>')) {
-                    finalHTML = finalHTML.replace('<head>', \`<head>\${styleTag}`);
+                    finalHTML = finalHTML.replace('<head>', `<head>${styleTag}`);
                 } else {
                     finalHTML = styleTag + finalHTML;
                 }
             }
 
-            // Bundle JS: Find all .js files and inject them as <script> tags
             const jsContent = Object.keys(files)
                 .filter(name => name.endsWith('.js'))
-                .map(name => \`// \${name}\\n\${files[name]}\`)
-                .join('\\n\\n');
+                .map(name => `// ${name}\n${files[name]}`)
+                .join('\n\n');
 
             if (jsContent) {
-                const scriptTag = \`<script>\${jsContent}<\/script>`;
-                if (finalHTML.includes('</body>')) {
-                    finalHTML = finalHTML.replace('</body>', \`\${scriptTag}</body>`);
+                const scriptTag = `<script>${jsContent}<\/script>`;
+                if (finalHTML.includes('</body')}) {
+                    finalHTML = finalHTML.replace('</body', `<script>${jsContent}<\/script></body`);
                 } else {
                     finalHTML = finalHTML + scriptTag;
                 }
@@ -378,7 +365,6 @@
             preview.srcdoc = finalHTML;
         }
 
-        // Event Listeners
         runBtn.addEventListener('click', runCode);
         newFileBtn.addEventListener('click', createNewFile);
 
@@ -388,7 +374,6 @@
             }
         });
 
-        // Init
         window.onload = () => {
             editor.value = files[activeFile];
             updateFileList();
