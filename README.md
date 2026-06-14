@@ -34,16 +34,10 @@ The app simulates a real development environment using a **Virtual File System (
 - A modern web browser (Chrome, Firefox, Edge, Safari).
 
 ### Usage
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/adhithyan-pradeep/HTML-tester.git
-   ```
-2. Navigate to the project folder:
-   ```bash
-   cd HTML-tester
-   ```
-3. Open `index.html` in your preferred browser.
-4. Create your files in the explorer, write your code, and click **Run**!
+The fastest way to get started is by using the live version:
+👉 **[Launch HTML Tester Pro](https://adhithyan-pradeep.github.io/HTML-tester/)**
+
+Create your files in the explorer, write your code, and click **Run**!
 
 ## 🎨 Interface Design
 - **Sidebar**: A dark-themed explorer for managing your project files.
